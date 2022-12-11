@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+data/AITD/stats/*
+
+*secrets.toml
+
+.idea/*
+
+*.cer
+
+lambda/package/*
