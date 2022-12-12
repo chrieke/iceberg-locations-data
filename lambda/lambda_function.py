@@ -8,13 +8,17 @@ from botocore.exceptions import NoCredentialsError
 
 
 def lambda_handler(event=None, context=None):
-
     def is_aws_env():
-        return os.environ.get('AWS_LAMBDA_FUNCTION_NAME')
+        return os.environ.get("AWS_LAMBDA_FUNCTION_NAME")
 
     def upload_to_s3(local_file, s3_file):
-        s3 = boto3.client('s3')
-        s3.upload_file(local_file, os.environ['BUCKET_NAME'], s3_file, ExtraArgs={'ACL':'public-read'})
+        s3 = boto3.client("s3")
+        s3.upload_file(
+            local_file,
+            os.environ["BUCKET_NAME"],
+            s3_file,
+            ExtraArgs={"ACL": "public-read"},
+        )
 
     def query_icebergs_usi(start_date: str, end_date: str, freq_days: str):
         """
@@ -46,7 +50,7 @@ def lambda_handler(event=None, context=None):
     def format_usi(df):
         df = df.drop(["Remarks", "Last Update"], axis=1)
         df.columns = [x.lower() for x in df.columns]
-        df = df.dropna(subset=['iceberg', 'longitude', 'latitude', 'date'])
+        df = df.dropna(subset=["iceberg", "longitude", "latitude", "date"])
 
         # Drops problematic icebergs marked with a star
         df = df[~df["iceberg"].str.contains("*", regex=False, na=False)]
@@ -70,10 +74,7 @@ def lambda_handler(event=None, context=None):
         df.to_csv(fname)
     print("shape df", df.shape[0])
 
-    return {
-        'statusCode': 200,
-        'body': {"df_len": df.shape[0]}
-    }
+    return {"statusCode": 200, "body": {"df_len": df.shape[0]}}
 
 
 if __name__ == "__main__":
