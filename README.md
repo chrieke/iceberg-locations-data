@@ -6,13 +6,13 @@ Weekly iceberg locations (2014-today) in a single file hosted on AWS S3.
 
 **https://usi-icebergs.s3.eu-central-1.amazonaws.com/icebergs_locations_usi.csv**
 
-Currently 19169 rows, 1.2 MB. Updated on a weekly basis via a scheduled AWS lambda function from the
+Currently 19169 rows, 1.2 MB. Updated on a weekly basis via a scheduled AWS lambda function - from the
 US National Ice Center (USNIC).
 
 ## Data
 
 Scraped from the [US National Ice Center (USNIC) archive](https://usicecenter.gov/Products/AntarcIcebergs) which 
-provides the data as weekly csv files. The iceberg tracking is based on **remote-sensing imagery**, 
+provides the data as weekly csv files for download in their webinterface. The iceberg tracking is based on **remote-sensing imagery**, 
 from a min. size of ~1.85 sqkm.
 
 The iceberg **naming convention** depends on the Antarctic quadrant in which they were originally sighted (A: 0-90W, 
