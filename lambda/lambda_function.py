@@ -1,10 +1,10 @@
 import os
 from dateutil.parser import parse
 import urllib
+from datetime import date
 
 import pandas as pd
 import boto3
-from botocore.exceptions import NoCredentialsError
 
 
 def lambda_handler(event=None, context=None):
@@ -50,29 +50,48 @@ def lambda_handler(event=None, context=None):
     def format_usi(df):
         df = df.drop(["Remarks", "Last Update"], axis=1)
         df.columns = [x.lower() for x in df.columns]
-        df = df.dropna(subset=["iceberg", "longitude", "latitude", "date"])
 
+        df = df.dropna(subset=["iceberg", "longitude", "latitude", "date"])
         # Drops problematic icebergs marked with a star
         df = df[~df["iceberg"].str.contains("*", regex=False, na=False)]
         return df
 
-    # def most_recent_date_on_s3():
-    #     s3_file = "https://usi-icebergs.s3.eu-central-1.amazonaws.com/icebergs_locations_usi.csv"
-    #     most_recent_date = pd.read_csv(s3_file).iloc[-1]["date"]
+    # start_date = "2014-10-01"
+    # end_date = str(date.today())
+    # df_query = query_icebergs_usi(start_date, end_date, "1d")
+    # df_query = format_usi(df_query)
+    # fname = f"icebergs_locations_usi.csv"
+    # df_query.to_csv(fname)
 
-    start_date = "2014-10-01"
-    end_date = "2022-12-10"
+    archive_file = (
+        "https://usi-icebergs.s3.eu-central-1.amazonaws.com/icebergs_locations_usi.csv"
+    )
+    df_s3 = pd.read_csv(archive_file)
+    print("df_s3", df_s3.shape[0])
+
+    # start_date = "2014-10-01"
+    start_date = str(df_s3.iloc[-1]["date"])
+    end_date = str(date.today())
+    print("start_date", start_date, "end_date", end_date)
     fname = f"icebergs_locations_usi.csv"
 
-    df = query_icebergs_usi(start_date, end_date, "1d")
-    df = format_usi(df)
+    df_query = query_icebergs_usi(start_date, end_date, "1d")
+    df_query = format_usi(df_query)
+    print("df_query", df_query.shape[0])
 
-    if is_aws_env():
-        df.to_csv("/tmp/" + fname)
-        upload_to_s3(local_file="/tmp/" + fname, s3_file=fname)
-    else:
-        df.to_csv(fname)
-    print("shape df", df.shape[0])
+    if not df_query.empty:
+        df = pd.concat([df_s3, df_query], ignore_index=True)
+        df = df[
+            ["iceberg", "length (nm)", "width (nm)", "latitude", "longitude", "date"]
+        ]
+        df = df.reset_index(drop=True)
+        print("df", df.shape[0])
+
+        if is_aws_env():
+            df.to_csv("/tmp/" + fname)
+            upload_to_s3(local_file="/tmp/" + fname, s3_file=fname)
+        else:
+            df.to_csv(fname)
 
     return {"statusCode": 200, "body": {"df_len": df.shape[0]}}
 
