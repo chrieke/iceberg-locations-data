@@ -85,58 +85,45 @@ def vizualization(df):
     df["date"] = df["date"].astype(str)
     df = df.sort_values(["date"], axis=0)
 
-    fig = px.scatter_geo(df,
-                         lat="latitude",
-                         lon="longitude",
-                         size="extent",
-                         color="iceberg",
-                         animation_frame="date",
-                         hover_name="iceberg",
-                         size_max=30,
-                         color_discrete_sequence=px.colors.qualitative.Alphabet).update_traces(
+    fig = px.scatter_geo(
+        df,
+        lat="latitude",
+        lon="longitude",
+        size="extent",
+        color="iceberg",
+        animation_frame="date",
+        hover_name="iceberg",
+        size_max=30,
+        color_discrete_sequence=px.colors.qualitative.Alphabet,
+    ).update_traces(
         marker=dict(line=dict(width=0)),
         selector=dict(mode="markers"),
     )
 
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0},
-                      showlegend=False,
-                      height=700)
+    fig.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0}, showlegend=False, height=700
+    )
 
     fig.update_layout(
-        geo = dict(
+        geo=dict(
             resolution=50,
-            showland = True,
-            showcountries = True,
-            showocean = True,
-            countrywidth = 0.5,
-            landcolor = 'rgb(255, 255, 255)',
-            lakecolor = 'rgb(0, 255, 255)',
-            oceancolor = 'rgb(161, 207, 227)',
-            projection = dict(
-                type = 'orthographic',
-                rotation = dict(
-                    lon = 0,
-                    lat = -90,
-                    roll = 0
-                )
-            ),
-            lonaxis = dict(
-                showgrid = True,
-                gridcolor = 'rgb(102, 102, 102)',
-                gridwidth = 0.5
-            ),
-            lataxis = dict(
-                showgrid = True,
-                gridcolor = 'rgb(102, 102, 102)',
-                gridwidth = 0.5
-            )
+            showland=True,
+            showcountries=True,
+            showocean=True,
+            countrywidth=0.5,
+            landcolor="rgb(255, 255, 255)",
+            lakecolor="rgb(0, 255, 255)",
+            oceancolor="rgb(161, 207, 227)",
+            projection=dict(type="orthographic", rotation=dict(lon=0, lat=-90, roll=0)),
+            lonaxis=dict(showgrid=True, gridcolor="rgb(102, 102, 102)", gridwidth=0.5),
+            lataxis=dict(showgrid=True, gridcolor="rgb(102, 102, 102)", gridwidth=0.5),
         )
     )
 
     fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 2
     fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 2
     fig.layout.sliders[0].pad.t = 10
-    fig.layout.updatemenus[0].pad.t= 10
+    fig.layout.updatemenus[0].pad.t = 10
 
     st.plotly_chart(fig)
 

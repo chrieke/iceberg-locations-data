@@ -27,8 +27,10 @@ df_icebergs = utils.filter_data(df, iceberg_names, start_date, end_date)
 
 st.markdown("---")
 
-expander_text = f"Results: **{len(iceberg_names)}** Icebergs - **{len(df_icebergs)}** Data points - Dates: *" \
-                f"*{df_icebergs['date'].min().strftime('%Y/%m/%d')}** - **{df_icebergs['date'].max().strftime('%Y/%m/%d')}**"
+expander_text = (
+    f"Results: **{len(iceberg_names)}** Icebergs - **{len(df_icebergs)}** Data points - Dates: *"
+    f"*{df_icebergs['date'].min().strftime('%Y/%m/%d')}** - **{df_icebergs['date'].max().strftime('%Y/%m/%d')}**"
+)
 
 with st.expander(expander_text):
     components.data_exploration(df_icebergs)
