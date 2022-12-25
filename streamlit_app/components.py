@@ -1,7 +1,6 @@
 import datetime
 from dateutil.parser import parse
 
-from shapely.geometry import LineString
 import streamlit as st
 import plotly.express as px
 
