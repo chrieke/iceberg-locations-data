@@ -29,6 +29,12 @@ See [more dataset information](https://usicecenter.gov/Resources/AntarcticIceber
 | 19169 | D30B | 10.0 | 5.0 | -70.05 | -70.05 | belle | 2022-12-09 |
 
 
+<br>
+
 ## Streamlit Webapp
 
-Work in Progress 
+Simple streamlit webapp to animate the iceberg timeseries data, allow data filtering & download.
+
+<p align="center">
+  <img width="500" src="app_animation.gif">
+</p>
