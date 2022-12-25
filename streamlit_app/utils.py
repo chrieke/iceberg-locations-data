@@ -18,6 +18,7 @@ def read_data():
         geometry=gpd.points_from_xy(df["longitude"], df["latitude"], crs="EPSG:4326"),
     )
     gdf["date"] = pd.to_datetime(gdf["date"])
+    gdf["extent"] = (gdf["width (nm)"] * gdf["length (nm)"]) / 2
     return gdf
 
 

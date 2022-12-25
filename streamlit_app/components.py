@@ -1,12 +1,9 @@
-from shapely.geometry import LineString
 import datetime
 from dateutil.parser import parse
 
+from shapely.geometry import LineString
 import streamlit as st
-import holoviews as hv
-import hvplot.pandas
-
-import utils
+import plotly.express as px
 
 
 def data_selection(df):
@@ -18,7 +15,7 @@ def data_selection(df):
     select_all = col2_filter.checkbox("Select All")
     if not select_all:
         iceberg_names = col1_filter.multiselect(
-            "Select Icebergs", icebergs, default=["D32"]  # "A68D", "A68C"
+            "Select Icebergs", icebergs, default=["A56", "B15T", "A23A", "B30"]
         )
     else:
         iceberg_names = col1_filter.multiselect(
@@ -30,14 +27,14 @@ def data_selection(df):
 
 def optional_data_filters():
     start_date, end_date = None, None
-    with st.expander("More Filters (Click to Expand)"):
+    with st.expander("More filters: time, area etc. (Click to Expand)"):
         date1, date2, _, date3, _ = st.columns(5)
         date1_empty = date1.empty()
         date2_empty = date2.empty()
         start_date = date1_empty.date_input(
             "Start date",
-            value=parse("2017-11-07"),
-            min_value=parse("2017-11-07"),
+            value=parse("2014-01-07"),
+            min_value=parse("2014-01-07"),
             max_value=datetime.date.today(),
             key="123",
         )
@@ -68,6 +65,8 @@ def optional_data_filters():
                 key="4564",
             )
 
+        st.write("Aoi filter etc.")
+
         return start_date, end_date
 
 
@@ -80,55 +79,67 @@ def data_exploration(df_icebergs):
     avg_df["nr #"] = df_icebergs.groupby(["iceberg"]).date.count()
     avg_df["first #"] = df_icebergs.groupby(["iceberg"]).date.min()
     avg_df["last #"] = df_icebergs.groupby(["iceberg"]).date.max()
-    st.dataframe(avg_df, height=150)
+    st.dataframe(avg_df, height=190)
 
 
 def vizualization(df):
-    # Remove instances with only one occurence, can not be visualized as path
-    df = df.groupby(["iceberg"]).filter(lambda x: len(x["geometry"].tolist()) >= 2)
-    lines = list(
-        df.groupby(["iceberg"]).apply(lambda x: LineString(x["geometry"].tolist()))
-    )
-    df_lines = df.drop(["geometry"], axis=1).groupby(["iceberg"]).first().reset_index()
-    df_lines["geometry"] = lines
-    df_lines = df_lines.set_geometry("geometry")
+    df["date"] = df["date"].astype(str)
+    df = df.sort_values(["date"], axis=0)
 
-    st.write("aa")
-    # DATA VIZ
-    points_plot = df.hvplot.points(
-        coastline=True,
-        color="iceberg",
-        alpha=0.8,
-        padding=0.3,
-        hover_cols="all",
-    )
-    st.write("bb")
-    lines_plot = df_lines.hvplot.paths(
-        coastline=True,
-        tiles="ESRI",
-        padding=0.3,
-        color="red",
-        legend="top",
+    fig = px.scatter_geo(df,
+                         lat="latitude",
+                         lon="longitude",
+                         size="extent",
+                         color="iceberg",
+                         animation_frame="date",
+                         hover_name="iceberg",
+                         size_max=30,
+                         color_discrete_sequence=px.colors.qualitative.Alphabet).update_traces(
+        marker=dict(line=dict(width=0)),
+        selector=dict(mode="markers"),
     )
 
-    hv_plot = (lines_plot * points_plot).opts(
-        toolbar="right",
-        active_tools=["wheel_zoom"],
-        xlabel="",
-        ylabel="",
-        width=700,
-        height=500,
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0},
+                      showlegend=False,
+                      height=700)
+
+    fig.update_layout(
+        geo = dict(
+            resolution=50,
+            showland = True,
+            showcountries = True,
+            showocean = True,
+            countrywidth = 0.5,
+            landcolor = 'rgb(255, 255, 255)',
+            lakecolor = 'rgb(0, 255, 255)',
+            oceancolor = 'rgb(161, 207, 227)',
+            projection = dict(
+                type = 'orthographic',
+                rotation = dict(
+                    lon = 0,
+                    lat = -90,
+                    roll = 0
+                )
+            ),
+            lonaxis = dict(
+                showgrid = True,
+                gridcolor = 'rgb(102, 102, 102)',
+                gridwidth = 0.5
+            ),
+            lataxis = dict(
+                showgrid = True,
+                gridcolor = 'rgb(102, 102, 102)',
+                gridwidth = 0.5
+            )
+        )
     )
 
-    # from bokeh.models.glyphs import ImageURL
-    # url = "https://bokeh.pydata.org/en/latest/_static/images/logo.png"
-    # N = 5
-    # image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center")
-    # hv_plot.add_glyph(source, image1)
+    fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 2
+    fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 2
+    fig.layout.sliders[0].pad.t = 10
+    fig.layout.updatemenus[0].pad.t= 10
 
-    # 2 hvplots side by side with "+", on top with "*"
-    hv_render = hv.render(hv_plot, backend="bokeh")
-    st.bokeh_chart(hv_render)
+    st.plotly_chart(fig)
 
 
 def download(df):
