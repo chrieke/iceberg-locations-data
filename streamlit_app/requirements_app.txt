@@ -1,6 +1,2 @@
 streamlit
-streamlit_lottie
-holoviews
-hvplot
-geoviews
-scipy # for geoviews import
+plotly

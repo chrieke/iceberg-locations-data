@@ -120,8 +120,8 @@ def vizualization(df):
         )
     )
 
-    fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 2
-    fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 2
+    fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 1
+    fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 1
     fig.layout.sliders[0].pad.t = 10
     fig.layout.updatemenus[0].pad.t = 10
 
